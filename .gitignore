@@ -7,9 +7,5 @@
 .obsidian/graph.json
 .obsidian/cache
 
-# Плагины: код ставится из Obsidian, в git только manifest.json
-.obsidian/plugins/*/main.js
-.obsidian/plugins/*/styles.css
-# data.json может содержать ключи и токены. Безопасные добавлять явно через !
-.obsidian/plugins/*/data.json
-!.obsidian/plugins/terminal/data.json
+# Сторонние плагины стоят локально; список включённых — в community-plugins.json
+.obsidian/plugins/

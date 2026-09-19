@@ -15,9 +15,8 @@ _Обновлено: 2026-09-20_
 
 ### Git
 - Ветка `main`. `CLAUDE.md` и `SPEC.md` лежат в `.claude/` (Claude Code подхватывает `.claude/CLAUDE.md`). Конфиг vault (`.obsidian/`) и `Без названия.base` в git.
-- `.gitignore` исключает `.DS_Store`, `.trash/`, `workspace*.json`, `graph.json`, `.obsidian/cache` и код плагинов (`main.js`, `styles.css`).
-- `data.json` плагинов по умолчанию тоже исключён: в нём бывают ключи и токены. Проверенный безопасный файл добавляется исключением `!` (сейчас так добавлен `terminal`).
-- После клона плагины нужно переустановить в Obsidian: список в `.obsidian/community-plugins.json`, версии в `manifest.json`.
+- `.gitignore` исключает `.DS_Store`, `.trash/`, `workspace*.json`, `graph.json`, `.obsidian/cache` и всю папку `.obsidian/plugins/` (код, манифесты и `data.json`, где бывают ключи и токены).
+- Сторонние плагины стоят только локально, сейчас это `terminal` 3.27.2. Список включённых плагинов хранится в git (`.obsidian/community-plugins.json`). После клона плагины и их настройки нужно поставить заново.
 - Remote `origin` — `git@github.com:RuslanAktaev/dev-vault.git`, но пока туда ничего не пушили (`origin/main` отсутствует).
 - Установлен community-плагин `terminal`.
 
