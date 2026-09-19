@@ -8,4 +8,4 @@
 
 ## Работа с vault
 
-- Это Obsidian-vault. С заметками работай через скилл `obsidian` (обёртка `~/.claude/skills/obsidian/scripts/obs`), а не прямым редактированием файлов, если меняются ссылки, имена файлов или frontmatter.
+- Это Obsidian-vault. С заметками работай через скилл `obsidian` (обёртка `.claude/skills/obsidian/scripts/obs`), а не прямым редактированием файлов, если меняются ссылки, имена файлов или frontmatter.

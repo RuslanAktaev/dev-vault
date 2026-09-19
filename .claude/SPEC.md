@@ -4,7 +4,7 @@ _Обновлено: 2026-09-19_
 
 ## Назначение
 
-`dev-vault` — Obsidian-vault в git-репозитории (`/Users/ruslanaktaev/dev/dev-vault`). Claude работает с ним через Obsidian CLI с помощью глобального скилла `obsidian`.
+`dev-vault` — Obsidian-vault в git-репозитории (`/Users/ruslanaktaev/dev/dev-vault`). Claude работает с ним через Obsidian CLI с помощью проектного скилла `obsidian` (лежит в репозитории и работает только в этом vault).
 
 ## Текущее состояние
 
@@ -18,7 +18,8 @@ _Обновлено: 2026-09-19_
 - `.gitignore` исключает `.DS_Store`, `workspace*.json`, `.obsidian/cache`, `.trash/`, а также код плагинов (`main.js`, `styles.css`). У плагинов хранятся только `manifest.json` и `data.json`.
 - Установлен community-плагин `terminal`.
 
-### Скилл `obsidian` (`~/.claude/skills/obsidian/`)
+### Скилл `obsidian` (`.claude/skills/obsidian/`)
+- Проектный скилл, лежит в git. Раньше был глобальным (`~/.claude/skills/`), теперь там его нет. В `SKILL.md` путь к `obs` указан относительно корня vault.
 - `SKILL.md` — когда срабатывает скилл, синтаксис CLI, рецепты и правила работы.
 - `scripts/obs` — обёртка над `obsidian`:
   - убирает строки мусора лаунчера из stdout (после обновления установщика до 1.13.7 их уже нет, фильтр оставлен на всякий случай);

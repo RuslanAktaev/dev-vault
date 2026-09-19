@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Wrapper around the Obsidian CLI:
+#  - strips launcher noise ("Loading updated app package", "installer is out of date")
+#  - returns exit code 1 when the CLI prints "Error: ..." (the CLI itself always exits 0)
+#  - kills the call after OBS_TIMEOUT seconds (default 30) so a hung call can't block the agent
+set -o pipefail
+OBS_TIMEOUT="${OBS_TIMEOUT:-30}"
+out=$(perl -e 'alarm shift; exec @ARGV' "$OBS_TIMEOUT" obsidian "$@" 2>&1)
+rc=$?
+out=$(printf '%s\n' "$out" | grep -v -E '^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9:]{8} Loading updated app package|installer is out of date')
+printf '%s\n' "$out"
+if [ $rc -eq 142 ]; then
+  echo "obs: timed out after ${OBS_TIMEOUT}s (is Obsidian running? try: open -a Obsidian)" >&2
+  exit 124
+fi
+if printf '%s' "$out" | grep -q '^Error:'; then exit 1; fi
+exit $rc
