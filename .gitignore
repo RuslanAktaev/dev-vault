@@ -1,0 +1,8 @@
+.DS_Store
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+# код плагинов ставится из Obsidian; храним только manifest.json и настройки data.json
+.obsidian/plugins/*/main.js
+.obsidian/plugins/*/styles.css
+.trash/
