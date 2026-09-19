@@ -14,7 +14,7 @@ _Обновлено: 2026-09-19_
 - Настройки: включено автоматическое обновление внутренних ссылок (`.obsidian/app.json` → `"alwaysUpdateLinks": true`). Поэтому rename/move не вызывают блокирующее окно «Обновить ссылки?».
 
 ### Git
-- Ветка `main`. Конфиг vault (`.obsidian/`) и `Без названия.base` в git.
+- Ветка `main`. `CLAUDE.md` и `SPEC.md` лежат в `.claude/` (Claude Code подхватывает `.claude/CLAUDE.md`). Конфиг vault (`.obsidian/`) и `Без названия.base` в git.
 - `.gitignore` исключает `.DS_Store`, `workspace*.json`, `.obsidian/cache`, `.trash/`, а также код плагинов (`main.js`, `styles.css`). У плагинов хранятся только `manifest.json` и `data.json`.
 - Установлен community-плагин `terminal`.
 
