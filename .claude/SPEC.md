@@ -1,6 +1,6 @@
 # SPEC — dev-vault
 
-_Обновлено: 2026-09-19_
+_Обновлено: 2026-09-20_
 
 ## Назначение
 
@@ -15,7 +15,10 @@ _Обновлено: 2026-09-19_
 
 ### Git
 - Ветка `main`. `CLAUDE.md` и `SPEC.md` лежат в `.claude/` (Claude Code подхватывает `.claude/CLAUDE.md`). Конфиг vault (`.obsidian/`) и `Без названия.base` в git.
-- `.gitignore` исключает `.DS_Store`, `workspace*.json`, `.obsidian/cache`, `.trash/`, а также код плагинов (`main.js`, `styles.css`). У плагинов хранятся только `manifest.json` и `data.json`.
+- `.gitignore` исключает `.DS_Store`, `.trash/`, `workspace*.json`, `graph.json`, `.obsidian/cache` и код плагинов (`main.js`, `styles.css`).
+- `data.json` плагинов по умолчанию тоже исключён: в нём бывают ключи и токены. Проверенный безопасный файл добавляется исключением `!` (сейчас так добавлен `terminal`).
+- После клона плагины нужно переустановить в Obsidian: список в `.obsidian/community-plugins.json`, версии в `manifest.json`.
+- Remote `origin` — `git@github.com:RuslanAktaev/dev-vault.git`, но пока туда ничего не пушили (`origin/main` отсутствует).
 - Установлен community-плагин `terminal`.
 
 ### Скилл `obsidian` (`.claude/skills/obsidian/`)
@@ -29,6 +32,7 @@ _Обновлено: 2026-09-19_
 - Проверено: create, read, append, property:set, search, tasks, task, outline, rename, move, delete, base:query, daily:path.
 
 ### Obsidian
+- Vault пока открывается только на этом Mac. Obsidian Sync не настроен, хотя core-плагин `sync` включён.
 - Установлен Obsidian 1.13.7, установщик тоже 1.13.7 (`obsidian version` → `1.13.7 (installer 1.13.7)`).
 - `~/Downloads/Obsidian-1.13.7.dmg` больше не нужен, его можно удалить.
 
@@ -41,4 +45,4 @@ _Обновлено: 2026-09-19_
 - `\n` в `content=` превращается в перевод строки.
 
 ## Открытые задачи
-- Нет.
+- [ ] (на будущее) Открывать vault на телефоне. Выбрать способ синхронизации: Obsidian Sync, iCloud или git через плагин Obsidian Git. Учесть, что плагины придётся переустановить и что Terminal на телефоне работать не будет.

@@ -1,8 +1,15 @@
 .DS_Store
+.trash/
+
+# Obsidian: состояние окон и кэш
 .obsidian/workspace.json
 .obsidian/workspace-mobile.json
+.obsidian/graph.json
 .obsidian/cache
-# код плагинов ставится из Obsidian; храним только manifest.json и настройки data.json
+
+# Плагины: код ставится из Obsidian, в git только manifest.json
 .obsidian/plugins/*/main.js
 .obsidian/plugins/*/styles.css
-.trash/
+# data.json может содержать ключи и токены. Безопасные добавлять явно через !
+.obsidian/plugins/*/data.json
+!.obsidian/plugins/terminal/data.json
