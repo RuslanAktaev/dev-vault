@@ -1,6 +1,6 @@
 ---
 tags: [nextjs]
-related: ["[[SSR-SSG-ISR]]", "[[Rehydration]]", "[[Virtual DOM]]", "[[Routing]]"]
+related: ["[[SSR-SSG-ISR]]", "[[Rehydration]]", "[[Virtual DOM]]", "[[Expo Router]]"]
 ---
 # App Router и Server Components
 
@@ -37,4 +37,4 @@ related: ["[[SSR-SSG-ISR]]", "[[Rehydration]]", "[[Virtual DOM]]", "[[Routing]]"
 - [[SSR-SSG-ISR]] — стратегия рендеринга маршрута в App Router выводится из данных в серверных компонентах.
 - [[Rehydration]] — гидрируются только client components.
 - [[Virtual DOM]] — RSC payload — дерево элементов, которое клиент встраивает в своё дерево через reconciliation.
-- [[Routing]] — Expo Router заимствует файловую модель App Router.
+- [[Expo Router]] — заимствует файловую модель App Router: `app/`, layouts, группы, динамические сегменты.

@@ -1,6 +1,6 @@
 ---
 tags: [react-native]
-related: ["[[App Router и Server Components]]", "[[Signing and Credentials]]"]
+related: ["[[Expo Router]]", "[[Signing and Credentials]]"]
 ---
 # Routing
 
@@ -14,11 +14,7 @@ related: ["[[App Router и Server Components]]", "[[Signing and Credentials]]"]
 - Типизация: `ParamList` для каждого навигатора.
 
 ## Expo Router
-Файловый роутинг **поверх** React Navigation.
-- `app/` — структура папок = маршруты. `_layout.tsx` задаёт навигатор уровня.
-- `(group)` — группы без сегмента в URL, `[id]` — динамические сегменты, `+not-found`, `+html`.
-- Каждый экран автоматически получает URL → deep links и universal links без отдельного конфига, typed routes.
-- Редиректы и защита маршрутов через layout (auth guard).
+Файловый роутинг **поверх** React Navigation: файл = экран = URL, `_layout.tsx` = навигатор, deep links без отдельного конфига. Подробно — в [[Expo Router]].
 
 ## Частые ошибки понимания
 - **Экраны в стеке не размонтируются**, когда поверх открывают новый. `useEffect` не перезапустится при возврате. Для этого есть `useFocusEffect` / `useIsFocused`.
@@ -27,5 +23,5 @@ related: ["[[App Router и Server Components]]", "[[Signing and Credentials]]"]
 - Ожидать веб-семантики истории. Stack — это push/pop, а не history API.
 
 ## Связи
-- [[App Router и Server Components]] — Expo Router перенял файловую модель Next.js: `app/`, layouts, группы, динамические сегменты.
+- [[Expo Router]] — файловый роутер, который строит дерево навигаторов React Navigation из папки `app/`; там конвенции, методы `router`, модалки, защита и тесты.
 - [[Signing and Credentials]] — deep links и universal links на iOS работают только при capability Associated Domains в App ID, а значит через перевыпуск provisioning profile.
