@@ -1,6 +1,6 @@
 ---
 tags: [react-native]
-related: ["[[Routing]]", "[[App Router и Server Components]]"]
+related: ["[[Routing]]", "[[App Router и Server Components]]", "[[Deep Links]]"]
 ---
 # Expo Router
 
@@ -190,10 +190,49 @@ const postId = Number(id); // число — только явным преоб�
 Всё настраивается в `_layout.tsx`, а не в экранах.
 
 **Модалки** — обычный экран стека с другим `presentation`. Чтобы перекрывала таб-бар, объявляй в **корневом** Stack, а не внутри вкладки. Закрывается `router.back()` / `router.dismiss()`.
+Значение `presentation` уходит в нативный экран (`react-native-screens`), поэтому поведение на платформах разное:
+
+| `presentation` | iOS | Android |
+|---|---|---|
+| `card` (default) | обычный push сбоку, свайп назад | обычный push |
+| `modal` | карточка снизу почти на весь экран, свайп вниз закрывает | как push, закрывается кнопкой «назад» |
+| `formSheet` | лист с detent'ами, может занимать часть экрана | настоящий Material BottomSheet |
+| `pageSheet` | на iPhone почти как `modal`, на iPad лист по центру | фолбэк на `modal` |
+| `fullScreenModal` | на весь экран, свайпом не закрыть, нужна своя кнопка | фолбэк на `modal` |
+| `transparentModal` | экран под модалкой смонтирован и виден сквозь фон | то же |
+| `containedModal` / `containedTransparentModal` | модалка внутри текущего контекста, а не поверх всего | фолбэк на `modal` / `transparentModal` |
+
+**Эффект «задвигания» на iOS.** При `modal` предыдущий экран уменьшается, скругляется и темнеет, его верх виден над карточкой — так iOS показывает временный слой. Эффект делает UIKit при нативном показе поверх полноэкранного экрана, поэтому его **нет** у RN `<Modal>` (стиль `fullScreen`) и у JS bottom sheet'ов — это просто вьюхи поверх. Роут с `presentation: 'modal'` получает эффект бесплатно. Пока тянешь вниз, прежний экран возвращается к размеру; модалка из модалки даёт стопку карточек. У `fullScreenModal`, на Android и iPad эффекта нет.
+
+**`formSheet` — нативный bottom sheet** (iOS: как «Поделиться» или лист в Картах; Android: Material BottomSheet).
 ```tsx
-<Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-<Stack.Screen name="sheet" options={{ presentation: 'formSheet', sheetAllowedDetents: [0.5, 1] }} />
+<Stack.Screen
+  name="filters"
+  options={{
+    presentation: 'formSheet',
+    sheetAllowedDetents: [0.4, 1],      // доли высоты экрана или 'fitToContents'
+    sheetInitialDetentIndex: 0,         // открыть на 40%
+    sheetGrabberVisible: true,          // «язычок» сверху (iOS)
+    sheetLargestUndimmedDetentIndex: 0, // на 40% не затемнять фон
+  }}
+/>
 ```
+На Android учитываются максимум 3 detent'а, внутри `formSheet` не работают вложенный Stack и нативный заголовок. На iPhone `formSheet` с `[1]` почти не отличается от `modal`. Название историческое: на iPad это небольшое окно по центру для форм.
+
+| | `modal` | `formSheet` |
+|---|---|---|
+| Промежуточные высоты | нет | `sheetAllowedDetents`, `'fitToContents'` |
+| Экран под листом | всегда затемнён, неактивен | можно оставить активным |
+| Android | обычный push | Material bottom sheet |
+| Вложенный Stack и заголовок | работают | на Android нет |
+
+Как выбрать:
+- форма или сценарий со своей навигацией внутри → `modal` (по умолчанию, если не нужно ничего из правого столбца);
+- неполная высота, работа с экраном под листом, bottom sheet и на Android → `formSheet`;
+- онбординг или пейвол, который нельзя смахнуть → `fullScreenModal`;
+- свой диалог с полупрозрачным фоном → `transparentModal` + `animation: 'fade'`.
+
+На вебе свайпа нет → кнопка закрытия нужна всегда. Если модалку открыли прямой ссылкой, под ней ничего нет: проверяй `router.canGoBack()`.
 
 **Защищённые маршруты** — `Stack.Protected guard`. Пока условие ложно, экраны скрыты; переход на скрытый ведёт на anchor или первый доступный. При смене guard роутер сам чистит историю от недоступных экранов — ручные редиректы в `useEffect` не нужны. Есть `Tabs.Protected`, `Drawer.Protected`. В SDK 57 — только `guard`, `redirectTo` появился в SDK 58.
 ```tsx
@@ -209,17 +248,37 @@ const { isLoggedIn } = useAuth();
 </Stack>
 ```
 
+**`Protected` — это навигация, а не безопасность.** Файловая версия паттерна React Navigation «рендерить разные наборы экранов по `isSignedIn`». `guard={false}` убирает экран из навигатора: `Link`, `router.push` или диплинк уведут на anchor, а при смене на `false` записи удаляются из истории (после логаута «назад» в приватную часть не вернёт). Но код экрана всё равно в JS-бандле, проверка на клиенте — данные защищает только API. До `Protected` то же делали `<Redirect>` в layout или `useEffect` + `router.replace`, с мерцанием и лишними записями в истории.
+
+**«На экран нет кнопок» — не замена `Protected`.** Любой файл в `app/` достижим по диплинку, с веба и из пуша (см. [[Deep Links#Все маршруты достижимы]]).
+
 **Anchor** — экран, который всегда лежит в основании стека. Без него при открытии сразу `/post/42` стек из одного экрана и «назад» некуда. Старое имя — `initialRouteName` (deprecated).
 ```ts
 // app/_layout.tsx
 export const unstable_settings = { anchor: '(tabs)' };
 ```
 
-**Deep links и редиректы:**
-- Каждый экран уже доступен по ссылке: `scheme: "myapp"` → `myapp://post/42` откроет `post/[id].tsx`. Ручной `linking` не нужен.
-- `<Redirect href="/login" />` — декларативный редирект при рендере. Для авторизации лучше `Protected`.
-- Статические redirects/rewrites — в опциях плагина `expo-router` в `app.json`, когда старые URL должны работать после переименования файлов.
-- Проверка на симуляторе: `xcrun simctl openurl booted myapp://post/42`.
+**Deep links** — каждый экран уже доступен по ссылке: `scheme: "myapp"` → `myapp://post/42` откроет `post/[id].tsx`, ручной `linking` не нужен. Схемы, universal links, отладка и безопасность — в [[Deep Links]].
+
+**Редиректы.** Статические `redirects` / `rewrites` задаются в опциях плагина `expo-router` в `app.json`. В expo-router 57 они встроены в обработку ссылок на всех платформах, поэтому ловят и диплинки, и `router.push`. `permanent` и `methods` важны только для веба.
+```json
+["expo-router", {
+  "redirects": [
+    { "source": "/profile/[id]", "destination": "/users/[id]" },
+    { "source": "/promo/summer", "destination": "/post/42" }
+  ],
+  "rewrites": [{ "source": "/u/[id]", "destination": "/users/[id]" }]
+}]
+```
+
+| | Статический `redirects` | `<Redirect>` |
+|---|---|---|
+| Где живёт | `app.json` | в экране или layout |
+| Нужен ли файл на старом пути | нет | да |
+| Когда срабатывает | при разборе URL, до рендера | при рендере |
+| Зависит от состояния (auth, флаги) | нет, только от пути | да |
+
+Статический redirect — когда экрана больше нет, а старые ссылки живут в пушах и письмах, или нужен новый адрес без правок экрана. Логика по состоянию — `<Redirect>` или `Protected` (для авторизации лучше `Protected`). Доезжают ли статические `redirects` через OTA без пересборки, не проверено.
 
 ## Тестирование
 Три уровня: `/_sitemap`, ручные deep links, Jest через `expo-router/testing-library` (роутер в памяти, без симулятора). Нужны `jest-expo`, `jest`, `@testing-library/react-native`, в `package.json` — `"jest": { "preset": "jest-expo" }`.
@@ -264,12 +323,15 @@ it('push кладёт пост в стек и back возвращает', () => 
 | На нижней карточке чужие данные | `useGlobalSearchParams` в экране | `useLocalSearchParams` |
 | Хелпер появился в `_sitemap` | любой файл в `app/` — маршрут | вынести в `components/` / `hooks/` |
 | После логина свайп возвращает на логин | переход через `push` | `Stack.Protected` или хотя бы `replace` |
+| Модалка по прямой ссылке без «назад» и не закрывается на вебе | под ней нет экрана, свайпа на вебе нет | своя кнопка закрытия + `router.canGoBack()` |
 | `id === 42` ложно | параметры — строки | `Number(id)` и валидация |
 | Новый файл не виден в `Href` | типы генерирует dev-сервер | `npx expo start` |
 
 - Думать, что `Stack.Screen` объявляет маршрут. Маршрут — это файл.
 - Думать, что `navigate` вернёт к уже открытому экрану. Для этого `dismissTo`.
 - Думать, что `Slot` — это просто Stack без заголовка. Он размонтирует предыдущие экраны.
+- Думать, что `Protected` защищает данные. Это только навигация на клиенте, защищает API.
+- Ждать эффекта «задвигания» от RN `<Modal>` или JS bottom sheet. Его даёт только нативный `presentation: 'modal'`.
 
 ### Самопроверка
 - Какой URL у `app/(auth)/(onboarding)/step/[n].tsx`?
@@ -279,7 +341,10 @@ it('push кладёт пост в стек и back возвращает', () => 
 - Куда положить модалку, чтобы она перекрывала таб-бар?
 - Что сделает роутер, если пользователь на защищённом экране, а guard стал false?
 - Что изменится для пользователя, если перенести `post/[id]` из корневого Stack в Stack внутри вкладки?
+- Когда `formSheet`, а когда `modal`? Что из этого работает на Android?
+- Чем статический `redirects` отличается от `<Redirect>`?
 
 ## Связи
 - [[Routing]] — общая модель навигации в RN (стек, дерево навигаторов, React Navigation), поверх которой построен Expo Router.
 - [[App Router и Server Components]] — Expo Router перенял файловую модель Next.js: `app/`, layouts, группы, динамические сегменты.
+- [[Deep Links]] — входящие URL сопоставляются с файлами `app/`; там схемы, universal links, `+native-intent` и безопасность.

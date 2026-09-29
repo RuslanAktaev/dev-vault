@@ -1,6 +1,6 @@
 ---
 tags: [react-native]
-related: ["[[Expo Router]]", "[[Signing and Credentials]]"]
+related: ["[[Expo Router]]", "[[Deep Links]]"]
 ---
 # Routing
 
@@ -24,4 +24,4 @@ related: ["[[Expo Router]]", "[[Signing and Credentials]]"]
 
 ## Связи
 - [[Expo Router]] — файловый роутер, который строит дерево навигаторов React Navigation из папки `app/`; там конвенции, методы `router`, модалки, защита и тесты.
-- [[Signing and Credentials]] — deep links и universal links на iOS работают только при capability Associated Domains в App ID, а значит через перевыпуск provisioning profile.
+- [[Deep Links]] — в React Navigation диплинки требуют ручного `linking`-конфига; в Expo Router каждый экран достижим по ссылке сам.

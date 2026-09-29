@@ -1,6 +1,6 @@
 ---
 tags: [react-native]
-related: ["[[Routing]]"]
+related: ["[[Deep Links]]"]
 ---
 # Signing and Credentials
 
@@ -60,7 +60,7 @@ ASC API Key покрывает весь API App Store Connect (не только
 1. Apple Developer Portal → Certificates, Identifiers & Profiles → Identifiers → App ID → чекбоксы.
 2. Xcode → Target → Signing & Capabilities → «+ Capability» (создаёт или обновляет `.entitlements`).
 
-Оба места должны совпадать, а после добавления новой capability provisioning profile нужно перегенерировать (automatic signing делает это сам). В Expo/EAS capabilities задаются декларативно через config plugins в `app.json`, и EAS сам синхронизирует галочки на портале через API.
+Capability работает только в связке из трёх частей: галочка в App ID, provisioning profile с ней и файл `.entitlements` в сборке. При подписи Apple сверяет entitlements с профилем, поэтому «дописать себе» право нельзя. Оба места должны совпадать, а после добавления новой capability provisioning profile нужно перегенерировать (automatic signing делает это сам). В Expo/EAS capabilities задаются декларативно через config plugins в `app.json`, и EAS сам синхронизирует галочки на портале через API.
 
 ### Локальные сборки vs EAS-управляемые
 - `eas build --profile development` — сборка на серверах Expo, credentials живут в `eas credentials` и там же видны.
@@ -94,4 +94,4 @@ ASC API Key покрывает весь API App Store Connect (не только
 Якорь: истекает раз в год и скачивается файлом (`.cer` / `.p12`) → это сертификат. Содержит список устройств и привязано к одному Bundle ID → это provisioning profile.
 
 ## Связи
-- [[Routing]] — universal links и deep links требуют capability Associated Domains в App ID, то есть упираются в подпись и provisioning profile.
+- [[Deep Links]] — universal links требуют entitlement и capability Associated Domains, то есть упираются в подпись и provisioning profile; App Links сверяются с SHA-256 ключа Play App Signing.
