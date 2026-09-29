@@ -28,7 +28,7 @@ related: ["[[Expo Router]]", "[[Routing]]", "[[Signing and Credentials]]"]
 ```json
 "ios": { "associatedDomains": ["applinks:example.com"] }
 ```
-- `applinks` — цель связи, домен **без `https://`**. Другие цели: `webcredentials` (автозаполнение паролей), `activitycontinuation` (Handoff).
+- Формат `<сервис>:<домен>`. `applinks` — **фиксированное ключевое слово** Apple (тип сервиса «открывать ссылки»), пишется ровно так; пример здесь только домен, он указывается **без `https://`**. Другие сервисы: `webcredentials` (автозаполнение паролей), `activitycontinuation` (Handoff), `appclips` (App Clips).
 - Запись попадает в **entitlements** (см. ниже). У App ID должна быть capability Associated Domains, EAS Build включает её сам.
 
 **2. Сайт: «да, это приложение моё».** Файл `https://example.com/.well-known/apple-app-site-association`, без расширения:
@@ -45,6 +45,7 @@ related: ["[[Expo Router]]", "[[Routing]]", "[[Signing and Credentials]]"]
   }
 }
 ```
+- Ключ верхнего уровня `applinks` — то же ключевое слово, по нему iOS находит раздел про ссылки. В одном файле могут быть и другие сервисы (`webcredentials` и т.д.).
 - `ABCDE12345` — Team ID (Apple Developer → Membership).
 - `components` проверяются сверху вниз, первое совпадение побеждает → `exclude` выше. `*` не переходит через `/`.
 - Хостинг: только HTTPS, **без редиректов**, `200` с `Content-Type: application/json`. С Expo Router — в `public/.well-known/`, деплоится с веб-версией.
