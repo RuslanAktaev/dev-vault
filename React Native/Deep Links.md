@@ -101,6 +101,8 @@ https://example.com/.well-known/apple-app-site-association
 - **без редиректов** (даже `example.com` → `www.example.com`);
 - ответ `200` и `Content-Type: application/json`, файл без расширения `.json`.
 
+**Почему без расширения.** Имя задала Apple, iOS запрашивает ровно этот URL: `…/apple-app-site-association.json` — другой адрес, его не найдут. Исторически (iOS 8–9) файл был не JSON, а подписанный сертификатом сайта PKCS#7-контейнер, отсюда и имя без `.json`; подпись потом отменили, имя осталось. Следствие: сервер определяет `Content-Type` по расширению и отдаст этот файл как `octet-stream` / `text/plain`, поэтому `application/json` для этого пути прописывают в конфиге сервера вручную (nginx, Vercel, Netlify, S3). У Android файл `assetlinks.json` — с расширением, проблемы нет.
+
 С Expo Router файл кладут в `public/.well-known/`, он деплоится вместе с веб-версией. Если сайт отдельный — его выкладывают туда те, кто делает сайт.
 
 ### Как iPhone их сводит
