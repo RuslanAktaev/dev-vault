@@ -147,7 +147,7 @@ https://example.com/.well-known/apple-app-site-association
 
 iOS при установке и запуске проверяет: **запрошенное (entitlements) ⊆ разрешённое (profile)**. Нет — не установит или не запустит. Поэтому «дописать себе» право нельзя: запросить можно что угодно, но разрешение выдаёт Apple.
 
-Галочка Associated Domains в App ID разрешает заявлять домены вообще, без списка. Конкретный домен есть только в entitlements, а подтверждает его файл на сайте. В Expo файл генерирует `prebuild`, capability и профиль обновляет EAS Build. На Android аналога с подписью нет: всё в `AndroidManifest.xml`.
+Галочка Associated Domains в App ID разрешает заявлять домены вообще, без списка. Конкретный домен есть только в entitlements, а подтверждает его файл на сайте. Что физически лежит в `.ipa`, что чем подписано и что iOS проверяет при установке — в [[Signing and Credentials#Что на выходе: из чего состоит подписанный ipa]]. В Expo файл генерирует `prebuild`, capability и профиль обновляет EAS Build. На Android аналога с подписью нет: всё в `AndroidManifest.xml`.
 
 ### Отложенный диплинк
 Человек пришёл на лендинг, скачал приложение, открыл — исходная ссылка потеряна, он на главной. Решения: Branch / AppsFlyer (их URL переписывают в `+native-intent.tsx`), на Android — Install Referrer из Google Play. iOS сама этого не умеет.

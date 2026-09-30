@@ -18,6 +18,14 @@ related: ["[[Deep Links]]"]
 
 **Правило:** ключей подписи на Android всего два — upload и app signing, причём второй разработчик никогда не видит. Service account — это не про подпись билда, а про API-доступ к консоли, и нужен **только для автоматизации** (`eas submit`, fastlane, CI). При ручной загрузке AAB через UI Play Console он не нужен вообще.
 
+### Что на выходе: подпись APK / AAB
+- **Исходник:** `android/app/src/main/AndroidManifest.xml` (Expo генерирует из `app.json`). Там package name, permissions, `intent-filter` для диплинков и App Links (`autoVerify="true"`). В сборке манифест хранится в бинарном XML.
+- **Подпись APK** (APK Signature Scheme v2/v3): отдельный блок внутри zip, перед central directory. В нём хэши всего содержимого архива, подпись **ключом подписи** и сертификат с публичным ключом. Поменял любой байт — подпись не сходится.
+- **С Play App Signing:** ты загружаешь `.aab`, подписанный **upload key**. Google проверяет, что загрузил ты, генерирует из AAB APK под устройства и подписывает их **app signing key**, который хранится у Google. На телефоны пользователей попадает подпись Google-ключом.
+- **Аналога entitlements и provisioning profile нет.** Всё, что приложение «заявляет», лежит в манифесте, а манифест защищён общей подписью APK.
+- **App Links:** при установке Android сам (без посредника) скачивает `https://домен/.well-known/assetlinks.json` для каждого хоста из `intent-filter` с `autoVerify` и сверяет `package_name` + `sha256_cert_fingerprints` с сертификатом установленного APK. Поэтому в `assetlinks.json` нужен SHA-256 **app signing key** (Play Console → App integrity), а не upload key.
+- **Посмотреть:** `apksigner verify --print-certs app.apk` (сертификат и SHA-256), `aapt2 dump xmltree app.apk --file AndroidManifest.xml` (манифест).
+
 ### eas build ≠ eas submit
 - `eas build` — только **собирает** бинарник (APK/AAB) и кладёт его на серверы Expo. В Play не публикует.
 - `eas submit` — отдельная команда, заливает уже собранный билд в Play Console или App Store Connect.
@@ -61,6 +69,70 @@ ASC API Key покрывает весь API App Store Connect (не только
 2. Xcode → Target → Signing & Capabilities → «+ Capability» (создаёт или обновляет `.entitlements`).
 
 Capability работает только в связке из трёх частей: галочка в App ID, provisioning profile с ней и файл `.entitlements` в сборке. Entitlements вшивает в подпись твой сертификат, профиль подписывает Apple; iOS при установке проверяет, что запрошенное в entitlements есть в профиле, поэтому «дописать себе» право нельзя. Оба места должны совпадать, а после добавления новой capability provisioning profile нужно перегенерировать (automatic signing делает это сам). В Expo/EAS capabilities задаются декларативно через config plugins в `app.json`, и EAS сам синхронизирует галочки на портале через API.
+
+### Что на выходе: из чего состоит подписанный ipa
+**Исходники** (в Expo их генерирует `npx expo prebuild` из `app.json`):
+- `ios/MyApp/Info.plist` — метаданные: bundle ID, версия, custom scheme (`CFBundleURLTypes` → `CFBundleURLSchemes`), тексты runtime-разрешений (`NSCameraUsageDescription`).
+- `ios/MyApp/MyApp.entitlements` — plist с запрашиваемыми правами. Xcode берёт его по build setting `CODE_SIGN_ENTITLEMENTS`:
+```xml
+<key>com.apple.developer.associated-domains</key>
+<array><string>applinks:example.com</string></array>
+<key>aps-environment</key>
+<string>production</string>
+```
+При подписи к ним добавляются обязательные: `application-identifier` = `TEAMID.com.example.app`, `com.apple.developer.team-identifier`, `keychain-access-groups`, `get-task-allow` (`true` только в debug — разрешает подключать отладчик).
+
+**Результат.** `.ipa` — это zip:
+```
+MyApp.ipa
+└── Payload/MyApp.app/
+    ├── MyApp                      ← исполняемый Mach-O; ВНУТРИ него блок подписи
+    ├── Info.plist
+    ├── main.jsbundle              ← JS-бандл React Native (обычный ресурс)
+    ├── Frameworks/…               ← каждый framework подписан отдельно
+    ├── embedded.mobileprovision   ← provisioning profile, подписан Apple
+    └── _CodeSignature/
+        └── CodeResources          ← plist с хэшами всех файлов бандла
+```
+Файла `.entitlements` в `.app` **нет**: его содержимое вшито в подпись бинарника.
+
+**Что лежит в блоке подписи бинарника** (команда `LC_CODE_SIGNATURE` в Mach-O):
+- **CodeDirectory** — хэши каждой страницы кода + хэши «особых слотов»: `Info.plist`, `CodeResources`, entitlements. Поменял хоть байт в бинарнике, `Info.plist`, `main.jsbundle` (через `CodeResources`) или entitlements — подпись не сходится.
+- **Entitlements** — тот самый plist (в XML и DER).
+- **CMS-подпись** над CodeDirectory — сделана **приватным ключом твоего сертификата** (`Apple Distribution: Company (TEAMID)`), приложена цепочка сертификатов: твой → Apple WWDR → Apple Root CA.
+
+**Что лежит в `embedded.mobileprovision`** — CMS-конверт, подписанный **Apple**, внутри plist:
+- `TeamIdentifier`, `ApplicationIdentifierPrefix` и `Entitlements` с `application-identifier` = `TEAMID.com.example.app` — для какого App ID;
+- `Entitlements` — что **разрешено** (из галочек App ID). Для Associated Domains там `*` (любые домены), для пушей — `aps-environment`;
+- `DeveloperCertificates` — какими сертификатами можно подписывать;
+- `ProvisionedDevices` — список UDID (только development / ad hoc);
+- `ExpirationDate`, `UUID`.
+
+**Итого, кто что подписал:**
+
+| Что | Чем подписано |
+|---|---|
+| Бинарник + entitlements + хэши `Info.plist` и всех ресурсов | твой distribution/development сертификат |
+| `embedded.mobileprovision` | Apple |
+| Сборка из App Store на телефоне пользователя | **Apple переподписывает** своим сертификатом после ревью, entitlements сохраняются |
+
+**Что проверяет iOS при установке и запуске:**
+1. Подпись бинарника валидна, цепочка сертификата доходит до Apple Root.
+2. Хэши страниц кода и ресурсов совпадают с CodeDirectory — ничего не менялось после подписи.
+3. Профиль подписан Apple и не истёк; для dev/ad hoc — UDID устройства есть в `ProvisionedDevices`.
+4. Сертификат, которым подписан бинарник, есть в `DeveloperCertificates` профиля.
+5. `application-identifier` в entitlements совпадает с App ID профиля.
+6. **Каждое entitlement из подписи разрешено в профиле** (`applinks:example.com` подпадает под `*`). Лишнее — установка отклоняется.
+
+После установки системный демон `swcd` читает из entitlements `com.apple.developer.associated-domains` и идёт за AASA-файлами этих доменов (через CDN Apple) — дальше см. [[Deep Links]].
+
+**Посмотреть своими глазами:**
+```bash
+unzip MyApp.ipa
+codesign -d --entitlements :- Payload/MyApp.app       # entitlements из подписи
+codesign -dvvv Payload/MyApp.app                      # Authority (цепочка), TeamIdentifier
+security cms -D -i Payload/MyApp.app/embedded.mobileprovision   # профиль как plist
+```
 
 ### Локальные сборки vs EAS-управляемые
 - `eas build --profile development` — сборка на серверах Expo, credentials живут в `eas credentials` и там же видны.
