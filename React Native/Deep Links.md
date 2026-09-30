@@ -6,6 +6,22 @@ related: ["[[Expo Router]]", "[[Routing]]", "[[Signing and Credentials]]"]
 
 Диплинк — URL снаружи приложения (ссылка, пуш, QR, OAuth-редирект), который роутер сопоставляет с экраном. В Expo Router — с файлами в `app/`, как при `router.navigate`.
 
+## Шпаргалка: что настраивает RN/Web-разработчик
+
+| Где | Что | Зачем |
+|---|---|---|
+| `app.json` → `scheme` | `"myapp"` | custom scheme `myapp://…`: OAuth, пуши, dev |
+| `app.json` → `ios.associatedDomains` | `["applinks:example.com"]` | universal links, сторона приложения |
+| `app.json` → `android.intentFilters` | `VIEW` + `https` + `host` + `autoVerify: true` | App Links, сторона приложения |
+| сайт → `/.well-known/apple-app-site-association` | `appIDs` (Team ID + bundle ID) + `components` (пути) | universal links, сторона сайта |
+| сайт → `/.well-known/assetlinks.json` | `package_name` + `sha256_cert_fingerprints` | App Links, сторона сайта |
+
+- Значения для файлов на сайте: `ios.bundleIdentifier` + Team ID; `android.package` + SHA-256 **app signing key** из Play Console (не upload key).
+- Поля `app.json` — нативный конфиг: после изменения нужна **новая сборка**, `eas update` не привезёт.
+- Файлы на сайте: HTTPS, без редиректов, `application/json`, на **каждом** хосте (`www.` — отдельный).
+- Роутер: `anchor` (кнопка «назад» у экрана из ссылки), `+not-found`, `+native-intent.tsx` (переписать чужие URL / allowlist), валидация параметров.
+- Entitlements, provisioning profile, проверку файлов системой делают EAS и ОС — это нужно для отладки, а не для настройки.
+
 ## Custom scheme или https-ссылка
 
 | | Custom scheme | Universal Links (iOS) / App Links (Android) |
