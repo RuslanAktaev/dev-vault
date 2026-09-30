@@ -60,7 +60,7 @@ ASC API Key покрывает весь API App Store Connect (не только
 1. Apple Developer Portal → Certificates, Identifiers & Profiles → Identifiers → App ID → чекбоксы.
 2. Xcode → Target → Signing & Capabilities → «+ Capability» (создаёт или обновляет `.entitlements`).
 
-Capability работает только в связке из трёх частей: галочка в App ID, provisioning profile с ней и файл `.entitlements` в сборке. При подписи Apple сверяет entitlements с профилем, поэтому «дописать себе» право нельзя. Оба места должны совпадать, а после добавления новой capability provisioning profile нужно перегенерировать (automatic signing делает это сам). В Expo/EAS capabilities задаются декларативно через config plugins в `app.json`, и EAS сам синхронизирует галочки на портале через API.
+Capability работает только в связке из трёх частей: галочка в App ID, provisioning profile с ней и файл `.entitlements` в сборке. Entitlements вшивает в подпись твой сертификат, профиль подписывает Apple; iOS при установке проверяет, что запрошенное в entitlements есть в профиле, поэтому «дописать себе» право нельзя. Оба места должны совпадать, а после добавления новой capability provisioning profile нужно перегенерировать (automatic signing делает это сам). В Expo/EAS capabilities задаются декларативно через config plugins в `app.json`, и EAS сам синхронизирует галочки на портале через API.
 
 ### Локальные сборки vs EAS-управляемые
 - `eas build --profile development` — сборка на серверах Expo, credentials живут в `eas credentials` и там же видны.
