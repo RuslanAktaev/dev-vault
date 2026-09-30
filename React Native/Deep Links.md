@@ -109,10 +109,88 @@ https://example.com/.well-known/apple-app-site-association
 
 На Android то же самое: система запускает `Activity`, у которой в манифесте есть подходящий `intent-filter`, и кладёт URL в `Intent` (`ACTION_VIEW`, поле `data`). Дальше тот же `Linking` → Expo Router.
 
-### Android App Links — то же самое
-- Приложение: `intentFilters` с `autoVerify: true` в `app.json` (аналог `associatedDomains`).
-- Сайт: файл `https://example.com/.well-known/assetlinks.json` (аналог AASA). Приложение в нём указано как package name + **SHA-256 отпечаток ключа подписи** — роль Team ID здесь играет ключ, которым подписано приложение. Для сборок из Google Play это ключ Play App Signing, а не upload-ключ.
-- Android проверяет файл при установке сам, без CDN-посредника.
+### Android App Links
+Та же идея из двух сторон, но другие файлы, и **пути фильтрует приложение, а не сайт**.
+
+**Сторона 1 — приложение: `intentFilters` в `app.json`.**
+```json
+"android": {
+  "package": "com.example.app",
+  "intentFilters": [
+    {
+      "action": "VIEW",
+      "autoVerify": true,
+      "data": [
+        { "scheme": "https", "host": "example.com", "pathPrefix": "/post" },
+        { "scheme": "https", "host": "www.example.com", "pathPrefix": "/post" }
+      ],
+      "category": ["BROWSABLE", "DEFAULT"]
+    }
+  ]
+}
+```
+- `action: "VIEW"` — «открыть/показать URL». Этот intent система шлёт при нажатии на ссылку.
+- `category`: `BROWSABLE` — ссылку можно открыть из браузера и других приложений; `DEFAULT` — фильтр отвечает на обычные неявные intent'ы. Нужны оба.
+- `data` — какие URL ловить: `scheme`, `host` и путь одним из способов: `path` (точно), `pathPrefix` (начинается с), `pathPattern` (простой шаблон с `.*`). Без пути — весь домен.
+- `autoVerify: true` — «проверь, что домен мой» (через `assetlinks.json`). Без него это просто фильтр ссылок, и при нажатии Android откроет браузер или спросит пользователя.
+
+`npx expo prebuild` превращает это в `android/app/src/main/AndroidManifest.xml`, внутрь главной activity:
+```xml
+<activity android:name=".MainActivity" ...>
+  <intent-filter android:autoVerify="true">
+    <action android:name="android.intent.action.VIEW"/>
+    <category android:name="android.intent.category.BROWSABLE"/>
+    <category android:name="android.intent.category.DEFAULT"/>
+    <data android:scheme="https" android:host="example.com" android:pathPrefix="/post"/>
+    <data android:scheme="https" android:host="www.example.com" android:pathPrefix="/post"/>
+  </intent-filter>
+  <!-- Custom scheme из "scheme": "myapp" Expo добавляет сам, без autoVerify: -->
+  <intent-filter>
+    <action android:name="android.intent.action.VIEW"/>
+    <category android:name="android.intent.category.BROWSABLE"/>
+    <category android:name="android.intent.category.DEFAULT"/>
+    <data android:scheme="myapp"/>
+  </intent-filter>
+</activity>
+```
+
+**Сторона 2 — сайт: `https://example.com/.well-known/assetlinks.json`.** Для **каждого** хоста из фильтра (`example.com` и `www.example.com` — это два разных хоста, файл нужен на обоих):
+```json
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.example.app",
+    "sha256_cert_fingerprints": [
+      "14:6D:E9:83:C5:73:06:50:D8:EE:B9:95:2F:34:FC:64:16:A0:83:42:E6:1D:BE:A8:8A:04:96:B2:3F:CF:44:E5"
+    ]
+  }
+}]
+```
+- `relation: delegate_permission/common.handle_all_urls` — фиксированная строка: «разрешаю приложению открывать мои ссылки».
+- `package_name` — package из `app.json` (`android.package`).
+- `sha256_cert_fingerprints` — SHA-256 **сертификата, которым подписан APK на телефоне**. Это аналог Team ID: package name может занять кто угодно, а подписать APK твоим ключом — только ты. Можно указать несколько (ключ Google Play, ключ для внутренних сборок).
+- **Путей в файле нет** — сайт делегирует весь домен. Какие пути открывать, решают `pathPrefix` / `path` в `intentFilters`. На iOS наоборот: пути задаются в AASA (`components`).
+- Хостинг: HTTPS, без редиректов, `Content-Type: application/json`, файл с расширением `.json`.
+
+**Где взять SHA-256:**
+- Сборки из Google Play: Play Console → Test and release → App integrity → App signing → сертификат **App signing key** (там же готовый сниппет `assetlinks.json`). Не путать с upload key.
+- Ключ, которым подписывает EAS (внутренние APK, ad hoc): `eas credentials` → Android → Keystore.
+- Свой keystore: `keytool -list -v -keystore my.keystore -alias my-alias`.
+
+**Как Android проверяет:**
+1. При установке (и обновлении) система видит фильтр с `autoVerify` и сама скачивает `assetlinks.json` с каждого хоста — напрямую, без CDN-посредника.
+2. Сверяет `package_name` и SHA-256 с сертификатом установленного APK.
+3. Совпало → домен «verified»: нажатие на `https://example.com/post/42` сразу открывает приложение, без диалога выбора. Приложение получает `Intent` с `ACTION_VIEW` и URL в `data` → `Linking` → Expo Router.
+4. Не совпало → на Android 12+ ссылка просто откроется в браузере.
+
+**Проверить на устройстве (Android 12+):**
+```bash
+adb shell pm get-app-links com.example.app                    # статус по каждому хосту: verified / none / …
+adb shell pm verify-app-links --re-verify com.example.app     # перепроверить после правки файла
+adb shell am start -a android.intent.action.VIEW -d "https://example.com/post/42"
+```
+Проверить сам файл глазами Google: `https://digitalassetlinks.googleapis.com/v1/statements:list?source.web.site=https://example.com&relation=delegate_permission/common.handle_all_urls`.
 
 ### Entitlements
 **Entitlement — это не разрешение пользователя, а подписанная декларация «что этому приложению позволено делать в системе».** Пользователь её не видит и ничего не подтверждает.
