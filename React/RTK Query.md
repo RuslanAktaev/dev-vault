@@ -1,6 +1,6 @@
 ---
 tags: [react]
-related: ["[[Event Loop]]", "[[Rehydration]]", "[[Nx монорепа]]"]
+related: ["[[Event Loop]]", "[[Rehydration]]", "[[Nx монорепа]]", "[[Идемпотентность и чистые функции]]"]
 ---
 # RTK Query
 
@@ -30,3 +30,4 @@ related: ["[[Event Loop]]", "[[Rehydration]]", "[[Nx монорепа]]"]
 - [[Event Loop]] — запросы — промисы, обновления стора приходят в микротасках и тасках. Отсюда состояния `pending` / `fulfilled` и гонки.
 - [[Rehydration]] — при SSR кэш RTK Query заполняется на сервере и восстанавливается на клиенте (`extractRehydrationInfo`). Также он может конфликтовать с redux-persist.
 - [[Nx монорепа]] — API-слайсы живут в `data-access`, отделённые от UI.
+- [[Идемпотентность и чистые функции]] — query соответствует safe и cacheable чтению, mutation не safe и требует инвалидации кеша; повторять мутацию безопасно только если она идемпотентна.

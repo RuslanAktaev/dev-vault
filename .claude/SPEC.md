@@ -1,6 +1,6 @@
 # SPEC — dev-vault
 
-_Обновлено: 2026-09-29_
+_Обновлено: 2026-10-08_
 
 ## Назначение
 
@@ -11,12 +11,12 @@ _Обновлено: 2026-09-29_
 ### Vault
 - Vault зарегистрирован в Obsidian под именем `dev-vault`.
 - Назначение контента — справочные конспекты для повторения (spaced review): суть, практика, частые ошибки понимания, без пересказа документации.
-- Папки-домены: `Clean Architecture/` (8 заметок, включая `Nx монорепа`), `React/` (3), `React Native/` (5, включая `Expo Router` и `Deep Links`), `Next.js/` (2), `JavaScript/` (4), `TypeScript/` (1), `Algorithms/` (7).
+- Папки-домены: `Clean Architecture/` (8 заметок, включая `Nx монорепа`), `React/` (3), `React Native/` (5, включая `Expo Router` и `Deep Links`), `Next.js/` (2), `JavaScript/` (4), `TypeScript/` (1), `Web/` (1: `Идемпотентность и чистые функции`; HTTP и сетевые темы, общие для фронта и бэка), `Algorithms/` (7).
 - В каждой папке лежит MOC `<Папка>/<Папка> MOC.md` со списком заметок и описанием.
 - Настройки: включено автоматическое обновление внутренних ссылок (`.obsidian/app.json` → `"alwaysUpdateLinks": true`). Поэтому rename/move не вызывают блокирующее окно «Обновить ссылки?».
 
 ### Конвенции заметок
-- Frontmatter: `tags: [<домен>]` (`clean-architecture`, `react`, `react-native`, `nextjs`, `javascript`, `typescript`, `algorithms`; у MOC добавлен `moc`) и `related: ["[[…]]"]`.
+- Frontmatter: `tags: [<домен>]` (`clean-architecture`, `react`, `react-native`, `nextjs`, `javascript`, `typescript`, `algorithms`, `web`; у MOC добавлен `moc`) и `related: ["[[…]]"]`. Если заметка сделана по внешнему источнику, во frontmatter есть `source: "<url>"`.
 - Типы свойств зарегистрированы в `.obsidian/types.json`: `tags` → `tags`, `related` → `multitext`.
 - Структура: определение и ключевая идея → где применяется → «Частые ошибки понимания» → «Связи».
 - В «Связях» только смысловые ссылки, у каждой указано, почему она есть. Связи **двусторонние**: `related` совпадает со ссылками в «Связях», и если A ссылается на B, то B ссылается на A.
