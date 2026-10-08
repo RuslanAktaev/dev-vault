@@ -16,7 +16,7 @@ _Обновлено: 2026-10-08_
 - Настройки: включено автоматическое обновление внутренних ссылок (`.obsidian/app.json` → `"alwaysUpdateLinks": true`). Поэтому rename/move не вызывают блокирующее окно «Обновить ссылки?».
 
 ### Конвенции заметок
-- Frontmatter: `tags: [<домен>]` (`clean-architecture`, `react`, `react-native`, `nextjs`, `javascript`, `typescript`, `algorithms`, `web`; у MOC добавлен `moc`) и `related: ["[[…]]"]`. Если заметка сделана по внешнему источнику, во frontmatter есть `source: "<url>"`.
+- Frontmatter: `tags: [<домен>]` (`clean-architecture`, `react`, `react-native`, `nextjs`, `javascript`, `typescript`, `algorithms`, `web`; у MOC добавлен `moc`) и `related: ["[[…]]"]`.
 - Типы свойств зарегистрированы в `.obsidian/types.json`: `tags` → `tags`, `related` → `multitext`.
 - Структура: определение и ключевая идея → где применяется → «Частые ошибки понимания» → «Связи».
 - В «Связях» только смысловые ссылки, у каждой указано, почему она есть. Связи **двусторонние**: `related` совпадает со ссылками в «Связях», и если A ссылается на B, то B ссылается на A.
