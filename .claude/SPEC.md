@@ -26,7 +26,7 @@ _Обновлено: 2026-10-08_
 - Ветка `main`. `CLAUDE.md` и `SPEC.md` лежат в `.claude/` (Claude Code подхватывает `.claude/CLAUDE.md`). Конфиг vault (`.obsidian/`) в git. Пустая база `Без названия.base` удалена.
 - `.gitignore` исключает `.DS_Store`, `.trash/`, `workspace*.json`, `graph.json`, `.obsidian/cache` и всю папку `.obsidian/plugins/` (код, манифесты и `data.json`, где бывают ключи и токены).
 - Сторонние плагины стоят только локально, сейчас это `terminal` 3.27.2. Список включённых плагинов хранится в git (`.obsidian/community-plugins.json`). После клона плагины и их настройки нужно поставить заново.
-- Remote `origin` — `git@github.com:RuslanAktaev/dev-vault.git`, но пока туда ничего не пушили (`origin/main` отсутствует).
+- Remote `origin` — `git@github.com:RuslanAktaev/dev-vault.git`, `main` запушен и отслеживает `origin/main`. Пушит пользователь сам.
 
 ### Скилл `obsidian` (`.claude/skills/obsidian/`)
 - Проектный скилл, лежит в git. Раньше был глобальным (`~/.claude/skills/`), теперь там его нет. В `SKILL.md` путь к `obs` указан относительно корня vault.
