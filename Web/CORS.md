@@ -1,6 +1,6 @@
 ---
 tags: [web]
-related: ["[[HTTP-заголовки]]", "[[Cookies]]", "[[Отладка веб-запросов]]"]
+related: ["[[HTTP-заголовки]]", "[[Cookies]]", "[[Отладка веб-запросов]]", "[[CDN]]"]
 ---
 # CORS
 
@@ -106,3 +106,4 @@ app.use(cors({
 - [[HTTP-заголовки]] — `Origin`, `Access-Control-*`, `Vary`. От `Content-Type` и `Authorization` зависит, пойдёт ли preflight.
 - [[Cookies]] — чтобы кука ушла на другой origin, нужны `credentials: 'include'` и `Allow-Credentials: true` с конкретным origin. Origin против site.
 - [[Отладка веб-запросов]] — симптом «CORS error»: где смотреть реальный статус и preflight.
+- [[CDN]] — CORS проверяет только браузер; серверный запрос через CDN или по внутреннему адресу его не касается.

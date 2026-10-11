@@ -1,6 +1,6 @@
 ---
 tags: [nextjs]
-related: ["[[Rehydration]]", "[[App Router и Server Components]]"]
+related: ["[[Rehydration]]", "[[App Router и Server Components]]", "[[CDN]]"]
 ---
 # SSR / SSG / ISR
 
@@ -29,3 +29,4 @@ related: ["[[Rehydration]]", "[[App Router и Server Components]]"]
 ## Связи
 - [[Rehydration]] — любой серверный HTML затем гидрируется на клиенте.
 - [[App Router и Server Components]] — в App Router стратегия рендеринга определяется серверными компонентами и их кэшированием.
+- [[CDN]] — ISR превращается в `s-maxage` + `stale-while-revalidate`, которые исполняет CDN перед Next.js.

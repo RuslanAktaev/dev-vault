@@ -1,6 +1,6 @@
 ---
 tags: [web]
-related: ["[[Cookies]]", "[[CORS]]"]
+related: ["[[Cookies]]", "[[CORS]]", "[[HTTP-кеширование]]"]
 ---
 # HTTP-заголовки
 
@@ -40,3 +40,4 @@ related: ["[[Cookies]]", "[[CORS]]"]
 ## Связи
 - [[Cookies]] — `Set-Cookie` и `Cookie`: формат, атрибуты, почему каждая кука ставится отдельным заголовком.
 - [[CORS]] — `Origin` и семейство `Access-Control-*`. От `Content-Type` и `Authorization` зависит, пойдёт ли preflight.
+- [[HTTP-кеширование]] — `Cache-Control`, `ETag`, `Vary` — главные заголовки кеширования, `Cache-Control` устроен как набор директив.
