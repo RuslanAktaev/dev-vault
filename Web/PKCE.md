@@ -1,6 +1,6 @@
 ---
 tags: [web]
-related: ["[[OAuth 2.0]]", "[[OIDC]]"]
+related: ["[[OAuth 2.0]]", "[[OIDC]]", "[[XSS и CSP]]"]
 ---
 # PKCE
 
@@ -123,3 +123,4 @@ if (base64url(sha256(codeVerifier)) !== record.codeChallenge) return error('inva
 ## Связи
 - [[OAuth 2.0]] — PKCE встраивается в шаги Authorization Code flow. Confidential client вместо него может полагаться на `client_secret`.
 - [[OIDC]] — тот же flow плюс `nonce`. Не путать, что защищает каждый из механизмов.
+- [[XSS и CSP]] — PKCE не спасает от XSS в самом клиенте: защищают экранирование и CSP.
