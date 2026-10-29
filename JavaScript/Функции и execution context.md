@@ -1,6 +1,6 @@
 ---
 tags: [javascript]
-related: ["[[Closures]]", "[[This binding]]", "[[Event Loop]]", "[[Symbol и итераторы]]"]
+related: ["[[Closures]]", "[[This binding]]", "[[Event Loop]]", "[[Symbol и итераторы]]", "[[Прототипы]]"]
 ---
 # Функции и execution context
 
@@ -112,3 +112,4 @@ function* gen() {
 - [[This binding]] — третья часть контекста, единственная динамическая.
 - [[Event Loop]] — call stack контекстов — это то, что Event Loop ждёт опустошения, прежде чем взять следующую задачу. Колбэки стартуют на пустом стеке.
 - [[Symbol и итераторы]] — генераторы: протокол итерации, `yield` и `yield*`, приостановка контекста.
+- [[Прототипы]] — функция — объект: `[[Prototype]]` у неё `Function.prototype`, а свойство `prototype` — для будущих экземпляров.
