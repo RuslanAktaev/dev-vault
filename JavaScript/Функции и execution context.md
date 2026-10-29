@@ -1,6 +1,6 @@
 ---
 tags: [javascript]
-related: ["[[Closures]]", "[[This binding]]", "[[Event Loop]]"]
+related: ["[[Closures]]", "[[This binding]]", "[[Event Loop]]", "[[Symbol и итераторы]]"]
 ---
 # Функции и execution context
 
@@ -111,3 +111,4 @@ function* gen() {
 - [[Closures]] — замыкание — это сохранённая ссылка на Lexical Environment.
 - [[This binding]] — третья часть контекста, единственная динамическая.
 - [[Event Loop]] — call stack контекстов — это то, что Event Loop ждёт опустошения, прежде чем взять следующую задачу. Колбэки стартуют на пустом стеке.
+- [[Symbol и итераторы]] — генераторы: протокол итерации, `yield` и `yield*`, приостановка контекста.
