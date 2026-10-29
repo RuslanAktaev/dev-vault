@@ -1,6 +1,6 @@
 ---
 tags: [javascript]
-related: ["[[Функции и execution context]]", "[[RTK Query]]", "[[Rehydration]]", "[[New Architecture]]"]
+related: ["[[Функции и execution context]]", "[[RTK Query]]", "[[Rehydration]]", "[[New Architecture]]", "[[setState и хуки]]"]
 ---
 # Event Loop
 
@@ -60,3 +60,4 @@ try { await fails(); } catch {}    // поймает
 - [[RTK Query]] — запросы, подписки и обновления кэша — асинхронные задачи и микрозадачи. Отсюда `isFetching` и гонки.
 - [[Rehydration]] — восстановление стора из хранилища асинхронно, первый рендер происходит раньше.
 - [[New Architecture]] — старый Bridge — асинхронная очередь сообщений между потоками. JSI позволяет синхронный вызов прямо из стека.
+- [[setState и хуки]] — React планирует render микрозадачей после клика и макрозадачей через Scheduler для остального.
