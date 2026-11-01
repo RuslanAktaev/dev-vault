@@ -1,6 +1,6 @@
 ---
 tags: [react-native]
-related: ["[[New Architecture]]", "[[Fiber и реконсиляция]]", "[[setState и хуки]]"]
+related: ["[[New Architecture]]", "[[Fiber и реконсиляция]]", "[[setState и хуки]]", "[[JSI]]", "[[TurboModules и Codegen]]"]
 ---
 # Fabric
 
@@ -53,6 +53,28 @@ related: ["[[New Architecture]]", "[[Fiber и реконсиляция]]", "[[se
 
 В вебе шаги 1–2 те же, а вместо 3–5 `react-dom` в commit-фазе меняет DOM, и перерисовывает браузер.
 
+## Где живут состояние и логика
+- На JS-потоке остаются описание UI, состояние и логика: `useState`, Zustand, TanStack Query, обработчики. Fabric получает только хост-операции.
+- Вне основного JS-потока: Reanimated и Gesture Handler (worklets на UI-потоке, не зависят от занятости JS), логика нативных модулей, внутреннее состояние кастомных нативных вьюх.
+
+## Кастомная нативная вьюха
+- Обычный компонент из `View` и `Text` остаётся JS-кодом, Codegen его не трогает: нативными становятся только примитивы, через общий конвейер Fabric.
+- Codegen нужен для **своей нативной вьюхи** (карта, плеер, WebView). Спек описывает пропсы, события и команды, Codegen генерирует C++ для Fabric (Props, ComponentDescriptor, ShadowNode, EventEmitter) и нативные интерфейсы. Саму вьюху на Swift/Kotlin пишет разработчик.
+- C++-слой нужен, потому что Shadow Tree живёт в C++, и Fabric должен знать пропсы, события, команды и как создавать ShadowNode.
+- Раньше был `ViewManager` с макросами (`RCT_EXPORT_VIEW_PROPERTY`) и сопоставлением пропсов по строкам в рантайме.
+
+```ts
+// MyMapNativeComponent.ts — суффикс NativeComponent обязателен
+import type { ViewProps } from 'react-native';
+import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
+
+interface NativeProps extends ViewProps {
+  zoom?: number;
+}
+
+export default codegenNativeComponent<NativeProps>('MyMap');
+```
+
 ## Коротко для собеседования
 Рендерер новой архитектуры RN. Иммутабельный Shadow Tree на C++, JSI вместо асинхронного JSON-bridge, Yoga считает layout до mount, UI-поток применяет diff. Это даёт синхронный layout и concurrent-режим React.
 
@@ -61,9 +83,12 @@ related: ["[[New Architecture]]", "[[Fiber и реконсиляция]]", "[[se
 - **«Fabric видит дерево компонентов».** Только хост-узлы, полученные через хост-операции.
 - **«Shadow Tree появился в Fabric».** Был и раньше, но мутабельный, нативный и за bridge.
 - **«UI-поток считает layout».** Layout готов к mount, UI-поток только применяет фреймы.
+- **«Для любого компонента нужен Codegen».** Только для кастомной нативной вьюхи. Компоненты из `View` и `Text` — обычный JS.
 - **«Diff лишний, раз есть клонирование».** Клон — кандидат на изменение, diff отсекает то, что на экране не поменялось.
 
 ## Связи
 - [[New Architecture]] — Fabric — одна из частей: JSI, Fabric, TurboModules, Codegen.
 - [[Fiber и реконсиляция]] — реконсилер и Fiber решают, что изменить; Fabric получает хост-операции. `alternate` и клонирование Shadow Tree — одна идея.
 - [[setState и хуки]] — начало цепочки «от `setState` до экрана».
+- [[JSI]] — JS-рендерер вызывает C++ UIManager (`nativeFabricUIManager`) через JSI, узлы в JS — ссылки на C++-объекты.
+- [[TurboModules и Codegen]] — Codegen генерирует C++-часть кастомной нативной вьюхи.
