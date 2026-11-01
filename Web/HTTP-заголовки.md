@@ -1,6 +1,6 @@
 ---
 tags: [web]
-related: ["[[Cookies]]", "[[CORS]]", "[[HTTP-кеширование]]", "[[HSTS]]", "[[XSS и CSP]]"]
+related: ["[[Cookies]]", "[[CORS]]", "[[HTTP-кеширование]]", "[[HSTS]]", "[[XSS и CSP]]", "[[HTTPS за прокси]]"]
 ---
 # HTTP-заголовки
 
@@ -43,3 +43,4 @@ related: ["[[Cookies]]", "[[CORS]]", "[[HTTP-кеширование]]", "[[HSTS]
 - [[HTTP-кеширование]] — `Cache-Control`, `ETag`, `Vary` — главные заголовки кеширования, `Cache-Control` устроен как набор директив.
 - [[HSTS]] — `Strict-Transport-Security`: только HTTPS, preload.
 - [[XSS и CSP]] — `Content-Security-Policy` и остальные security-заголовки (`nosniff`, `Referrer-Policy`, `Permissions-Policy`).
+- [[HTTPS за прокси]] — `X-Forwarded-*` подробно: TLS termination, что ломается, `trust proxy`, разбор `X-Forwarded-For`.

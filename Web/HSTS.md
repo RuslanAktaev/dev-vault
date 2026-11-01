@@ -1,6 +1,6 @@
 ---
 tags: [web]
-related: ["[[HTTPS и TLS]]", "[[Cookies]]", "[[HTTP-заголовки]]", "[[XSS и CSP]]"]
+related: ["[[HTTPS и TLS]]", "[[Cookies]]", "[[HTTP-заголовки]]", "[[XSS и CSP]]", "[[HTTPS за прокси]]"]
 ---
 # HSTS
 
@@ -37,3 +37,4 @@ Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
 - [[Cookies]] — `Secure` и HSTS вместе защищают куку сессии.
 - [[HTTP-заголовки]] — `Strict-Transport-Security` устроен как набор директив.
 - [[XSS и CSP]] — `Strict-Transport-Security` — один из security-заголовков рядом с CSP.
+- [[HTTPS за прокси]] — не путать: HSTS работает в браузере, а приложение за прокси всё равно не знает про https.

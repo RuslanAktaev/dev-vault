@@ -6,7 +6,7 @@ related: []
 
 Сервер ничего не помнит и никому не доверяет. Браузер автоматически делает то, о чём его не просили, и сам решает, что показать странице. Почти все темы ниже отвечают на вопрос, как с этим жить.
 
-Порядок чтения: заголовки → куки → сессии → CORS → OAuth → PKCE → OIDC. Кеширование: HTTP-кеш → ETag → CDN → подписанные ссылки → Redis. Безопасность: HTTPS и TLS → HSTS → CSRF → XSS и CSP.
+Порядок чтения: заголовки → куки → сессии → CORS → OAuth → PKCE → OIDC. Кеширование: HTTP-кеш → ETag → CDN → подписанные ссылки → Redis. Безопасность: HTTPS и TLS → HTTPS за прокси → HSTS → CSRF → XSS и CSP.
 
 - [[HTTP-заголовки]] — имя, значение, директива. Заголовки, которые встречаются постоянно.
 - [[Идемпотентность и чистые функции]] — детерминированность, чистота, два смысла идемпотентности, safe/cacheable HTTP-методы, Idempotency-Key.
@@ -24,8 +24,29 @@ related: []
 - [[HTTPS и TLS]] — целостность против аутентификации, сертификат и SAN, центры сертификации, корневые хранилища, цепочка.
 - [[HSTS]] — SSL stripping, `max-age`, preload, почему нужны и `Secure`, и HSTS.
 - [[CSRF]] — атака по шагам, `Domain` против `SameSite`, дыра в `Lax`, CSRF-токен, защита слоями.
+- [[HTTPS за прокси]] — TLS termination, что ломается без `X-Forwarded-Proto`, разбор `X-Forwarded-For`, Nginx/Express/Laravel/Next.js, редирект на прокси, forward proxy, `curl -I`.
 - [[XSS и CSP]] — директивы CSP, nonce, Report-Only, security-заголовки, что от чего защищает.
 - [[Отладка веб-запросов]] — чеклист «симптом → куда смотреть».
+
+## Сокращения
+| Сокращение | Расшифровка | Что это |
+|---|---|---|
+| TLS / SSL | Transport Layer Security / Secure Sockets Layer | Защита соединения. SSL — устаревший предшественник |
+| MITM | Man-in-the-Middle | Атакующий встаёт между клиентом и сервером |
+| CA | Certificate Authority | Центр сертификации, подписывает сертификаты |
+| SAN / CN | Subject Alternative Name / Common Name | Список доменов сертификата / старое поле, браузеры не смотрят |
+| mTLS | mutual TLS | Сертификат предъявляют обе стороны |
+| ECDHE | Elliptic Curve Diffie-Hellman Ephemeral | Обмен ключами: общий ключ каждая сторона считает сама |
+| MAC / AEAD | Message Authentication Code / Authenticated Encryption with Associated Data | Тег целостности / шифрование и тег за один проход |
+| HMAC | Hash-based Message Authentication Code | Хеш от данных и секретного ключа |
+| SHA | Secure Hash Algorithm | Семейство хеш-функций, SHA-256 даёт 256 бит |
+| HSTS | HTTP Strict Transport Security | Браузер ходит на домен только по HTTPS |
+| CSP | Content Security Policy | Откуда странице можно грузить и выполнять ресурсы |
+| XSS | Cross-Site Scripting | Чужой скрипт на твоём origin |
+| CSRF | Cross-Site Request Forgery | Запрос от имени залогиненного пользователя с чужой страницы |
+| CORS / SOP | Cross-Origin Resource Sharing / Same-Origin Policy | Разрешения серверу читать ответы с другого origin / правило браузера по умолчанию |
+| JWT | JSON Web Token | `header.payload.signature` |
+| HS256 / RS256 | HMAC with SHA-256 / RSA Signature with SHA-256 | Подпись общим секретом / приватным ключом с проверкой публичным |
 
 ## Что от чего защищает
 
@@ -53,7 +74,6 @@ related: []
 |---|---|
 | DNS | A/AAAA (адрес), CNAME (алиас), TXT (верификации), TTL (кеш записей). Смена записи доходит не мгновенно |
 | TCP и UDP/QUIC | TCP: надёжный упорядоченный поток, handshake, медленный старт. QUIC — транспорт HTTP/3 поверх UDP |
-| Reverse proxy | TLS termination, `X-Forwarded-*`, кеш прокси (`proxy_cache`). CDN разобран в [[CDN]] |
 | Content negotiation и сжатие | `Accept` / `Accept-Encoding`, gzip и br, `Content-Encoding` |
 | Chunked transfer, Range | Потоковые ответы без `Content-Length`. Докачка и перемотка видео |
 | Rate limiting | Ответ 429 с `Retry-After`. Лимиты по IP, ключу, пользователю |

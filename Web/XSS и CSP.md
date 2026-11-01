@@ -1,6 +1,6 @@
 ---
 tags: [web]
-related: ["[[CSRF]]", "[[Cookies]]", "[[Сессии и JWT]]", "[[HTTP-заголовки]]", "[[PKCE]]", "[[HSTS]]"]
+related: ["[[CSRF]]", "[[Cookies]]", "[[Сессии и JWT]]", "[[HTTP-заголовки]]", "[[PKCE]]", "[[HSTS]]", "[[HTTPS за прокси]]"]
 ---
 # XSS и CSP
 
@@ -75,3 +75,4 @@ Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.examp
 - [[HTTP-заголовки]] — CSP устроен как набор директив.
 - [[PKCE]] — PKCE не спасает от XSS в самом клиенте.
 - [[HSTS]] — ещё один security-заголовок.
+- [[HTTPS за прокси]] — `upgrade-insecure-requests` маскирует mixed content за прокси, но не чинит причину.
